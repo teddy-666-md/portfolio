@@ -14,7 +14,6 @@
 
 <style>
   :root {
-    /* Emerald & Cyber-Teal Theme */
     --bg-base: #030a08;
     --bg-surface: #071410;
     --bg-card: #0d1f19;
@@ -66,7 +65,7 @@
 
   ::selection { background: var(--primary); color: #000; }
   a { color: inherit; text-decoration: none; }
-  button { font-family: inherit; }
+  button, input, textarea { font-family: inherit; }
 
   .container {
     max-width: 1180px;
@@ -111,7 +110,7 @@
     .cursor-dot, .cursor-ring { display: none !important; }
   }
 
-  /* Enhanced Loader Section */
+  /* Loader */
   #loader {
     position: fixed;
     inset: 0;
@@ -242,7 +241,7 @@
     .status-widget { display: none; }
   }
 
-  /* UI Buttons & Badges */
+  /* Buttons & Badges */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -275,12 +274,6 @@
     background: var(--bg-card-hover);
     border-color: var(--accent-secondary);
     transform: translateY(-2px);
-  }
-  .btn-icon {
-    transition: transform 0.3s ease;
-  }
-  .btn:hover .btn-icon {
-    transform: translateX(4px);
   }
 
   .badge {
@@ -348,7 +341,7 @@
   }
   .hero-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1.1fr 0.9fr;
     gap: 40px;
     align-items: center;
   }
@@ -398,13 +391,16 @@
     color: var(--text-faint);
   }
 
-  /* Terminal Card */
+  /* Interactive Terminal Shell */
   .terminal-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    height: 380px;
   }
   .terminal-header {
     background: rgba(255,255,255,0.03);
@@ -427,16 +423,33 @@
     margin-left: auto;
   }
   .terminal-body {
-    padding: 24px;
+    padding: 16px;
     font-family: var(--font-mono);
-    font-size: 13.5px;
-    line-height: 1.7;
+    font-size: 13px;
+    line-height: 1.6;
     color: var(--text-muted);
+    overflow-y: auto;
+    flex-grow: 1;
   }
-  .terminal-body .code-keyword { color: #34d399; }
-  .terminal-body .code-var { color: var(--accent-secondary); }
-  .terminal-body .code-string { color: #6ee7b7; }
-  .terminal-body .code-comment { color: var(--text-faint); }
+  .terminal-line { margin-bottom: 8px; }
+  .terminal-prompt { color: var(--primary-soft); }
+  .terminal-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.2);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .terminal-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    width: 100%;
+  }
 
   @media (max-width: 992px) {
     .hero-grid { grid-template-columns: 1fr; }
@@ -468,8 +481,6 @@
     font-size: 16px;
     margin-bottom: 20px;
   }
-  .about-content strong { color: var(--text-main); }
-  
   .map-card {
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -527,6 +538,29 @@
     color: var(--text-faint);
   }
 
+  /* Repository Filter Bar */
+  .repo-filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary-soft);
+    border-color: var(--border-accent);
+  }
+
   /* Repositories Grid */
   .repos-grid {
     display: grid;
@@ -564,7 +598,7 @@
     border-top: 1px solid var(--border-subtle);
   }
 
-  /* Contact CTA Box */
+  /* Contact CTA & Lead Modal */
   .cta-box {
     text-align: center;
     padding: 80px 32px;
@@ -574,15 +608,54 @@
     position: relative;
     overflow: hidden;
   }
-  .cta-box::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-    pointer-events: none;
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(3, 10, 8, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition-smooth);
   }
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.8);
+  }
+  .form-group {
+    margin-bottom: 16px;
+    text-align: left;
+  }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--primary-soft);
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent-secondary); }
 
   footer {
     border-top: 1px solid var(--border-subtle);
@@ -648,6 +721,10 @@
   </div>
   <div class="status-divider"></div>
   <div class="status-item">
+    <span>Ping: <span id="sysPing" style="color:var(--primary-soft)">24ms</span></span>
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item">
     <span>Nairobi, KE</span>
   </div>
 </div>
@@ -697,44 +774,39 @@
         <div class="hero-actions reveal">
           <a href="#repos" class="btn btn-primary">
             <span>Explore Repositories</span>
-            <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+          <button class="btn btn-secondary" onclick="openModal()">Draft Quick Inquiry</button>
         </div>
         <div class="hero-stats reveal">
           <div>
-            <div class="stat-val">20+</div>
-            <div class="stat-lbl">Public Repositories</div>
+            <div class="stat-val" id="ghRepoCount">--</div>
+            <div class="stat-lbl">Public Repos</div>
           </div>
           <div>
-            <div class="stat-val">1.2k+</div>
-            <div class="stat-lbl">Forks Generated</div>
+            <div class="stat-val" id="ghStarCount">--</div>
+            <div class="stat-lbl">Total Stars</div>
           </div>
           <div>
-            <div class="stat-val">250+</div>
+            <div class="stat-val" id="ghFollowers">--</div>
             <div class="stat-lbl">Followers</div>
           </div>
         </div>
       </div>
       
+      <!-- Interactive Terminal -->
       <div class="terminal-card reveal">
         <div class="terminal-header">
           <span class="terminal-dot dot-red"></span>
           <span class="terminal-dot dot-yellow"></span>
           <span class="terminal-dot dot-green"></span>
-          <span class="terminal-title">teddy_tech.ts</span>
+          <span class="terminal-title">interactive_shell.sh</span>
         </div>
-        <div class="terminal-body">
-          <p><span class="code-keyword">const</span> <span class="code-var">developer</span> = {</p>
-          <p>&nbsp;&nbsp;brand: <span class="code-string">'TEDDY TECH'</span>,</p>
-          <p>&nbsp;&nbsp;whatsapp: <span class="code-string">'+254799963583'</span>,</p>
-          <p>&nbsp;&nbsp;email: <span class="code-string">'kibetwycliffe093@gmail.com'</span>,</p>
-          <p>&nbsp;&nbsp;github: <span class="code-string">'teddy-666-md'</span>,</p>
-          <p>&nbsp;&nbsp;stack: [<span class="code-string">'TypeScript'</span>, <span class="code-string">'Node.js'</span>, <span class="code-string">'WhatsApp APIs'</span>]</p>
-          <p>};</p>
-          <br>
-          <p class="code-comment">// Syncing active repositories...</p>
-          <p><span class="code-var">developer</span>.deployRepositories();</p>
+        <div class="terminal-body" id="termBody">
+          <div class="terminal-line"><span class="terminal-prompt">teddy-tech@arch-linux:~$</span> Type 'help' to view available interactive commands.</div>
+        </div>
+        <div class="terminal-input-wrap">
+          <span class="terminal-prompt">&gt;</span>
+          <input type="text" class="terminal-input" id="termInput" placeholder="Try typing 'help', 'about', or 'skills'..." autocomplete="off">
         </div>
       </div>
     </div>
@@ -806,68 +878,17 @@
   <div class="container">
     <div class="section-header reveal">
       <span class="section-tag">// Open Source</span>
-      <h2 class="section-title">Public Repositories</h2>
+      <h2 class="section-title">Live GitHub Repositories</h2>
     </div>
     
-    <div class="repos-grid reveal">
-      
-      <!-- Repo 1 -->
-      <div class="glass-card repo-card">
-        <div>
-          <div class="repo-header">
-            <span class="repo-title">teddy-666-md</span>
-            <span class="badge badge-primary">Main Bot</span>
-          </div>
-          <p class="repo-desc">
-            Multi-device WhatsApp automation engine featuring modular commands, session management, and fast execution speed.
-          </p>
-        </div>
-        <div class="repo-footer">
-          <span class="badge badge-cyan">TypeScript</span>
-          <a href="https://github.com/teddy-666-md" target="_blank" rel="noopener" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
-            View Repo
-          </a>
-        </div>
-      </div>
+    <div class="repo-filter-bar reveal">
+      <button class="filter-btn active" onclick="filterRepos('all', this)">All Projects</button>
+      <button class="filter-btn" onclick="filterRepos('ts', this)">Node / TypeScript</button>
+      <button class="filter-btn" onclick="filterRepos('api', this)">APIs & Services</button>
+    </div>
 
-      <!-- Repo 2 -->
-      <div class="glass-card repo-card">
-        <div>
-          <div class="repo-header">
-            <span class="repo-title">WhatsApp-Bot-Core</span>
-            <span class="badge badge-primary">Framework</span>
-          </div>
-          <p class="repo-desc">
-            Lightweight boilerplate engine for building scalable WhatsApp integrations and automated message handlers.
-          </p>
-        </div>
-        <div class="repo-footer">
-          <span class="badge badge-cyan">JavaScript</span>
-          <a href="https://github.com/teddy-666-md" target="_blank" rel="noopener" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
-            View Repo
-          </a>
-        </div>
-      </div>
-
-      <!-- Repo 3 -->
-      <div class="glass-card repo-card">
-        <div>
-          <div class="repo-header">
-            <span class="repo-title">TEDDY-TECH-API</span>
-            <span class="badge badge-primary">REST API</span>
-          </div>
-          <p class="repo-desc">
-            RESTful service layer designed for media downloader integration, utility endpoints, and third-party webhooks.
-          </p>
-        </div>
-        <div class="repo-footer">
-          <span class="badge badge-cyan">Node.js</span>
-          <a href="https://github.com/teddy-666-md" target="_blank" rel="noopener" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
-            View Repo
-          </a>
-        </div>
-      </div>
-
+    <div class="repos-grid reveal" id="githubReposContainer">
+      <!-- Dynamically populated via GitHub API -->
     </div>
   </div>
 </section>
@@ -885,18 +906,41 @@
       </div>
       <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
         <a href="https://wa.me/254799963583" target="_blank" rel="noopener" class="btn btn-primary">
-          <span>WhatsApp Chat</span>
+          <span>WhatsApp Direct</span>
         </a>
-        <a href="mailto:kibetwycliffe093@gmail.com" class="btn btn-secondary">
-          <span>Send Email</span>
-        </a>
-        <a href="https://github.com/teddy-666-md" target="_blank" rel="noopener" class="btn btn-secondary">
-          <span>GitHub Repositories</span>
-        </a>
+        <button class="btn btn-secondary" onclick="openModal()">
+          <span>Launch Message Builder</span>
+        </button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Quick Lead Modal -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal-card">
+    <h3 style="margin-bottom:8px; font-size:20px;">Draft WhatsApp Message</h3>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Fill out the details below to generate a formatted message directly on WhatsApp.</p>
+    
+    <div class="form-group">
+      <label class="form-label">YOUR NAME</label>
+      <input type="text" id="modalName" class="form-input" placeholder="John Doe">
+    </div>
+    <div class="form-group">
+      <label class="form-label">PROJECT TYPE</label>
+      <input type="text" id="modalType" class="form-input" placeholder="e.g. Custom WhatsApp Bot, API Integration">
+    </div>
+    <div class="form-group">
+      <label class="form-label">MESSAGE / DETAILS</label>
+      <textarea id="modalMsg" class="form-input" style="height:90px;" placeholder="Brief details about your project..."></textarea>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+      <button class="btn btn-secondary" onclick="closeModal()" style="padding:8px 16px;">Cancel</button>
+      <button class="btn btn-primary" onclick="submitModal()" style="padding:8px 16px;">Send WhatsApp</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="container footer-inner">
@@ -906,7 +950,10 @@
 </footer>
 
 <script>
-  // Particle Canvas Engine (Emerald Green particles)
+  // Global Data Store
+  let fetchedRepos = [];
+
+  // Particle Canvas Engine
   (function initFXCanvas() {
     const canvas = document.getElementById('fxCanvas');
     const ctx = canvas.getContext('2d');
@@ -929,12 +976,10 @@
 
     function render() {
       ctx.clearRect(0, 0, width, height);
-
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
         if (p.y < 0) p.y = height;
@@ -945,7 +990,6 @@
         ctx.fillStyle = `rgba(16, 185, 129, ${p.alpha})`;
         ctx.fill();
       }
-
       requestAnimationFrame(render);
     }
 
@@ -956,6 +1000,120 @@
 
     render();
   })();
+
+  // Live GitHub API Fetcher
+  async function initGitHubData() {
+    try {
+      const userRes = await fetch('https://api.github.com/users/teddy-666-md');
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        document.getElementById('ghRepoCount').textContent = userData.public_repos || '20+';
+        document.getElementById('ghFollowers').textContent = userData.followers || '250+';
+      }
+
+      const reposRes = await fetch('https://api.github.com/users/teddy-666-md/repos?sort=updated&per_page=6');
+      if (reposRes.ok) {
+        fetchedRepos = await reposRes.json();
+        let totalStars = fetchedRepos.reduce((acc, r) => acc + r.stargazers_count, 0);
+        document.getElementById('ghStarCount').textContent = totalStars > 0 ? totalStars : '120+';
+        renderRepos(fetchedRepos);
+      }
+    } catch (e) {
+      console.warn("GitHub API fetch fallback executed", e);
+    }
+  }
+
+  function renderRepos(repos) {
+    const container = document.getElementById('githubReposContainer');
+    if (!repos.length) return;
+    
+    container.innerHTML = repos.map(repo => `
+      <div class="glass-card repo-card">
+        <div>
+          <div class="repo-header">
+            <span class="repo-title">${repo.name}</span>
+            <span class="badge badge-primary">★ ${repo.stargazers_count}</span>
+          </div>
+          <p class="repo-desc">${repo.description || 'Automation tools and infrastructure codebase built by TEDDY TECH.'}</p>
+        </div>
+        <div class="repo-footer">
+          <span class="badge badge-cyan">${repo.language || 'TypeScript'}</span>
+          <a href="${repo.html_url}" target="_blank" rel="noopener" class="btn btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+            View Repo
+          </a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterRepos(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (type === 'all') {
+      renderRepos(fetchedRepos);
+    } else if (type === 'ts') {
+      renderRepos(fetchedRepos.filter(r => (r.language || '').toLowerCase().includes('script')));
+    } else {
+      renderRepos(fetchedRepos.filter(r => (r.name || '').toLowerCase().includes('api') || (r.description || '').toLowerCase().includes('api')));
+    }
+  }
+
+  // Interactive Terminal Command System
+  (function initTerminal() {
+    const input = document.getElementById('termInput');
+    const body = document.getElementById('termBody');
+
+    const commands = {
+      help: "Available commands: <span style='color:var(--primary-soft)'>about, skills, contact, github, clear</span>",
+      about: "TEDDY TECH — Software Developer specializing in WhatsApp automation engines, API architecture, and backend Node.js tools.",
+      skills: "Core Stack: TypeScript, JavaScript, Node.js, Baileys API, REST APIs, Git, Linux Admin",
+      contact: "WhatsApp: +254799963583 | Email: kibetwycliffe093@gmail.com",
+      github: "GitHub Handle: @teddy-666-md"
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = input.value.trim().toLowerCase();
+        if (!val) return;
+
+        const cmdLine = document.createElement('div');
+        cmdLine.className = 'terminal-line';
+        cmdLine.innerHTML = `<span class="terminal-prompt">teddy-tech@arch-linux:~$</span> ${val}`;
+        body.appendChild(cmdLine);
+
+        const respLine = document.createElement('div');
+        respLine.className = 'terminal-line';
+
+        if (val === 'clear') {
+          body.innerHTML = '';
+          input.value = '';
+          return;
+        } else if (commands[val]) {
+          respLine.innerHTML = commands[val];
+        } else {
+          respLine.innerHTML = `Command not found: '${val}'. Type <span style='color:var(--primary-soft)'>help</span> for commands.`;
+        }
+
+        body.appendChild(respLine);
+        body.scrollTop = body.scrollHeight;
+        input.value = '';
+      }
+    });
+  })();
+
+  // Modal Controls
+  function openModal() { document.getElementById('leadModal').classList.add('active'); }
+  function closeModal() { document.getElementById('leadModal').classList.remove('active'); }
+  function submitModal() {
+    const name = document.getElementById('modalName').value || 'Anonymous';
+    const type = document.getElementById('modalType').value || 'General Project';
+    const msg = document.getElementById('modalMsg').value || 'Inquiry regarding development services.';
+    
+    const formatted = `Hello TEDDY TECH,\n\nMy name is *${name}*.\n*Project Type:* ${type}\n*Details:* ${msg}`;
+    window.open(`https://wa.me/254799963583?text=${encodeURIComponent(formatted)}`, '_blank');
+    closeModal();
+  }
 
   // Loader
   (function initLoader() {
@@ -1023,18 +1181,21 @@
     reveals.forEach(el => observer.observe(el));
   })();
 
-  // Time Display
+  // Time & System Ping Display
   (function initSystemStatus() {
     const sysTime = document.getElementById('sysTime');
-    function updateTime() {
+    const sysPing = document.getElementById('sysPing');
+    
+    function updateStatus() {
       const now = new Date();
       sysTime.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      sysPing.textContent = Math.floor(Math.random() * 12 + 18) + 'ms';
     }
-    updateTime();
-    setInterval(updateTime, 10000);
+    updateStatus();
+    setInterval(updateStatus, 8000);
   })();
 
-  // Map
+  // Map Initialization
   (function initMap() {
     if (typeof L === 'undefined') return;
     const coords = [-1.286389, 36.817223];
@@ -1058,6 +1219,9 @@
 
     marker.bindPopup('<b>TEDDY TECH</b><br>Nairobi, Kenya').openPopup();
   })();
+
+  // Execute GitHub Fetch
+  initGitHubData();
 </script>
 </body>
 </html>
